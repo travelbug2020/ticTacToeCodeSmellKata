@@ -4,13 +4,17 @@ using System.Collections.Generic;
 
 namespace TicTacToe
 {
+    //SHOTGUN SURERY
+    //DATA CLASS
     public class Tile
     {
+        // PRIMITIVE OBSESSION
         public int X {get; set;}
         public int Y {get; set;}
         public char Symbol {get; set;}
     }
-
+    // SHOT GUN SURGERY
+    // LARGE CLASS - CODE SMELL
     public class Board
     {
        private List<Tile> _plays = new List<Tile>();
@@ -25,31 +29,43 @@ namespace TicTacToe
                 }  
             }       
         }
+        //PRIMITIVE OBBSESSION
+        //DATA CLUMP
        public Tile TileAt(int x, int y)
        {
            return _plays.Single(tile => tile.X == x && tile.Y == y);
        }
-
+        //LONG PARAMETER LIST
+        //PRIMITIVE OBBSESSION
+        //DATA CLUMPS
        public void AddTileAt(char symbol, int x, int y)
        {
+           //DEAD CODE
            var newTile = new Tile
            {
                X = x,
                Y = y,
                Symbol = symbol
            };
-
+            //Message Chain
            _plays.Single(tile => tile.X == x && tile.Y == y).Symbol = symbol;
        }
     }
-
+    // DIVERGANT CHANGE
+    // COMMENTS
     public class Game
     {
+        //PRIMITIVE OBBSESSION
         private char _lastSymbol = ' ';
         private Board _board = new Board();
-        
+        //LONG METHOD - CODE SMELL
+        //LONG PARAMETER LIST
+        //PRIMITIVE OBBSESSION
+        //DATA CLUMP
         public void Play(char symbol, int x, int y)
         {
+            
+            //SWITCH - CODE SMELL
             //if first move
             if(_lastSymbol == ' ')
             {
@@ -65,6 +81,7 @@ namespace TicTacToe
                 throw new Exception("Invalid next player");
             }
             //if not first move but play on an already played tile
+            //Message Chain
             else if (_board.TileAt(x, y).Symbol != ' ')
             {
                 throw new Exception("Invalid position");
@@ -74,7 +91,13 @@ namespace TicTacToe
             _lastSymbol = symbol;
             _board.AddTileAt(symbol, x, y);
         }
-
+        //Primitive OBBSESSION - CODE SMELL
+        //LONG METHOD - CODE SMELL
+        //SWITCH
+        //DUPLICATE CODE
+        // FEATURE ENVY
+        //Innappropiate intimicy
+        //Message Chains
         public char Winner()
         {   //if the positions in first row are taken
             if(_board.TileAt(0, 0).Symbol != ' ' &&
