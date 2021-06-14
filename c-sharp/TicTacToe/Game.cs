@@ -1,127 +1,67 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using TicTacToe;
-using static TicTacToe.Position;
+using System.Linq;
+using static TicTacToe.Player;
 
 namespace TicTacToe
 {
     //SHOTGUN SURERY
     //DATA CLASS
-    public class Tile
+
+    public class Axis
     {
-        // PRIMITIVE OBSESSION
-        public Position X {get; set;}
-        public Position Y {get; set;}
-        public char Symbol {get; set;}
-    }
-
-    public static class PositionExtensions
-    {
-
-        private static readonly Dictionary<string, Position> coordsToPosition = new Dictionary<string, Position>
-        {
-            {"0,0",BottomLeft},
-            {"1,0",BottomMiddle},
-            {"2,0",BottomRight},
-            {"0,1",CenterLeft},
-            {"1,1",CenterMiddle},
-            {"2,1",CenterRight},
-            {"0,2",TopLeft},
-            {"1,2",TopMiddle},
-            {"2,2",TopRight},
-        };
-
-
-    }
-
-    public enum Position
-    {
-        TopLeft,
-        TopRight,
-        TopMiddle,
-        CenterLeft,
-        CenterRight,
-        CenterMiddle,
-        BottomLeft,
-        BottomRight,
-        BottomMiddle
-        
-    
+        public int xAxis;
+        public int yAxis;
     }
 
     // SHOT GUN SURGERY
     // LARGE CLASS - CODE SMELL
-    public class Board
-    {
-       private List<Tile> _plays = new List<Tile>();
-       
-        public Board()
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    _plays.Add(new Tile{ X = i, Y = j, Symbol = ' '});
-                }  
-            }       
-        }
-        //PRIMITIVE OBBSESSION
-        //DATA CLUMP
-       public Tile TileAt(Position x, Position y)
-       {
-           return _plays.Single(tile => tile.X == x && tile.Y == y);
-       }
-        //LONG PARAMETER LIST
-        //PRIMITIVE OBBSESSION
-        //DATA CLUMPS
-       public void AddTileAt(char symbol, Position x, Position y)
-       {
-           
-           //Message Chain
-           _plays.Single(tile => tile.X == x && tile.Y == y).Symbol = symbol;
-       }
-    }
+  
     // DIVERGANT CHANGE
     // COMMENTS
     public class Game
     {
         //PRIMITIVE OBBSESSION
-        private char _lastSymbol = ' ';
+        private Player _lastSymbol = NONE;
         private Board _board = new Board();
         //LONG METHOD - CODE SMELL
         //LONG PARAMETER LIST
         //PRIMITIVE OBBSESSION
         //DATA CLUMP
-        public void Play(char symbol, Position x, int y) //O o o
+        public void Play(Player player, Axis xAxis, Axis yAxis) //O o o
         {
-            
+          string xAxisString =  xAxis.ToString();
+          string yAxisString =  yAxis.ToString();
+          string coordcombo = xAxisString + yAxisString;
+             
+             
+            var positionToPlay = PositionExtensions.coordsToPosition[coordcombo.ToString()];
+            //var position = _board.checkPosition(positionToPlay);
             //SWITCH - CODE SMELL
             //if first move
-            if(_lastSymbol == ' ')
+            if (_lastSymbol == NONE)
             {
                 //if player is X
-                if(symbol == 'O')
+                if(player == O)
                 {
                     throw new Exception("Invalid first player");
                 }
             } 
             //if not first move but player repeated
-            else if (symbol == _lastSymbol)
+            else if (player == _lastSymbol)
             {
                 throw new Exception("Invalid next player");
             }
             //if not first move but play on an already played tile
             //Message Chain
-            else if (_board.TileAt(x, y).Symbol != ' ')
-            {
-                throw new Exception("Invalid position");
-            }
+            //else if (position != NONE)
+            //{
+            //    throw new Exception("Invalid position");
+            //}
 
             // update game state
-            _lastSymbol = symbol;
-            _board.AddTileAt(symbol, x, y);
+            _lastSymbol = player;
+            _board.AddTileAt(player, positionToPlay);
         }
         //Primitive OBBSESSION - CODE SMELL
         //LONG METHOD - CODE SMELL
@@ -130,53 +70,24 @@ namespace TicTacToe
         // FEATURE ENVY
         //Innappropiate intimicy
         //Message Chains
-        public char Winner()
-        {   //if the positions in first row are taken
-            if(_board.TileAt(0, 0).Symbol != ' ' &&
-               _board.TileAt(0, 1).Symbol != ' ' &&
-               _board.TileAt(0, 2).Symbol != ' ')
-               {
-                    //if first row is full with same symbol
-                    if (_board.TileAt(0, 0).Symbol == 
-                        _board.TileAt(0, 1).Symbol &&
-                        _board.TileAt(0, 2).Symbol == 
-                        _board.TileAt(0, 1).Symbol )
-                        {
-                            return _board.TileAt(0, 0).Symbol;
-                        }
-               }
-                
-             //if the positions in first row are taken
-             if(_board.TileAt(1, 0).Symbol != ' ' &&
-                _board.TileAt(1, 1).Symbol != ' ' &&
-                _board.TileAt(1, 2).Symbol != ' ')
-                {
-                    //if middle row is full with same symbol
-                    if (_board.TileAt(1, 0).Symbol == 
-                        _board.TileAt(1, 1).Symbol &&
-                        _board.TileAt(1, 2).Symbol == 
-                        _board.TileAt(1, 1).Symbol)
-                        {
-                            return _board.TileAt(1, 0).Symbol;
-                        }
-                }
-
-            //if the positions in first row are taken
-             if(_board.TileAt(2, 0).Symbol != ' ' &&
-                _board.TileAt(2, 1).Symbol != ' ' &&
-                _board.TileAt(2, 2).Symbol != ' ')
-                {
-                    //if middle row is full with same symbol
-                    if (_board.TileAt(2, 0).Symbol == 
-                        _board.TileAt(2, 1).Symbol &&
-                        _board.TileAt(2, 2).Symbol == 
-                        _board.TileAt(2, 1).Symbol)
-                        {
-                            return _board.TileAt(2, 0).Symbol;
-                        }
-                }
-
-            return ' ';
+        private readonly WinningPositions _listOfWinningMoves = new WinningPositions();
+        private bool IsAWinningLine(Position winningPosition1, Position winningPosition2, Position winningPosition3)
+        {
+            return _board._board.ContainsKey(winningPosition1) && _board._board.ContainsKey(winningPosition2) &&
+            _board._board.ContainsKey(winningPosition3) && _board._board[winningPosition1] == _board._board[winningPosition2] &&
+                   _board._board[winningPosition2] == _board._board[winningPosition3];
         }
+        public Player Winner()
+        {
+            var winningLine = _listOfWinningMoves.Positions.FirstOrDefault(winningMoves =>
+                IsAWinningLine(winningMoves[0], winningMoves[1], winningMoves[2]));
+            if (winningLine == null)
+            {
+                return NONE;
+            }
+            return _board._board[winningLine[0]];
+            
+        }
+       
     }
 }
