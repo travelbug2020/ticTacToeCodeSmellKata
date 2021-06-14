@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using TicTacToe;
+using static TicTacToe.Position;
 
 namespace TicTacToe
 {
@@ -9,10 +12,45 @@ namespace TicTacToe
     public class Tile
     {
         // PRIMITIVE OBSESSION
-        public int X {get; set;}
-        public int Y {get; set;}
+        public Position X {get; set;}
+        public Position Y {get; set;}
         public char Symbol {get; set;}
     }
+
+    public static class PositionExtensions
+    {
+
+        private static readonly Dictionary<string, Position> coordsToPosition = new Dictionary<string, Position>
+        {
+            {"0,0",BottomLeft},
+            {"1,0",BottomMiddle},
+            {"2,0",BottomRight},
+            {"0,1",CenterLeft},
+            {"1,1",CenterMiddle},
+            {"2,1",CenterRight},
+            {"0,2",TopLeft},
+            {"1,2",TopMiddle},
+            {"2,2",TopRight},
+        };
+
+
+    }
+
+    public enum Position
+    {
+        TopLeft,
+        TopRight,
+        TopMiddle,
+        CenterLeft,
+        CenterRight,
+        CenterMiddle,
+        BottomLeft,
+        BottomRight,
+        BottomMiddle
+        
+    
+    }
+
     // SHOT GUN SURGERY
     // LARGE CLASS - CODE SMELL
     public class Board
@@ -31,23 +69,17 @@ namespace TicTacToe
         }
         //PRIMITIVE OBBSESSION
         //DATA CLUMP
-       public Tile TileAt(int x, int y)
+       public Tile TileAt(Position x, Position y)
        {
            return _plays.Single(tile => tile.X == x && tile.Y == y);
        }
         //LONG PARAMETER LIST
         //PRIMITIVE OBBSESSION
         //DATA CLUMPS
-       public void AddTileAt(char symbol, int x, int y)
+       public void AddTileAt(char symbol, Position x, Position y)
        {
-           //DEAD CODE
-           var newTile = new Tile
-           {
-               X = x,
-               Y = y,
-               Symbol = symbol
-           };
-            //Message Chain
+           
+           //Message Chain
            _plays.Single(tile => tile.X == x && tile.Y == y).Symbol = symbol;
        }
     }
@@ -62,7 +94,7 @@ namespace TicTacToe
         //LONG PARAMETER LIST
         //PRIMITIVE OBBSESSION
         //DATA CLUMP
-        public void Play(char symbol, int x, int y)
+        public void Play(char symbol, Position x, int y) //O o o
         {
             
             //SWITCH - CODE SMELL
